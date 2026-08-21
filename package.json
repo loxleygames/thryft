@@ -1,0 +1,40 @@
+{
+  "name": "thryft",
+  "version": "0.2.0",
+  "description": "Game UI toolkit for server-rendered browser games. No React, no build step.",
+  "license": "MIT",
+  "main": "dist/thryft.js",
+  "browser": "dist/thryft.min.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loxleygames/thryft.git"
+  },
+  "homepage": "https://thryft.dev",
+  "keywords": [
+    "game-ui",
+    "htmx-alternative",
+    "dom-diffing",
+    "tooltips",
+    "inventory",
+    "server-rendered",
+    "vanilla-js",
+    "mmo",
+    "idle-game"
+  ],
+  "scripts": {
+    "build": "node build.js",
+    "prepublishOnly": "node build.js"
+  },
+  "files": [
+    "src/",
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "terser": "^5.31.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
