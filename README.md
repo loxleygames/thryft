@@ -2,21 +2,22 @@
 
 **Game UI toolkit for server-rendered browser games.**
 
-Tiny, standalone JS modules for the UI patterns every MMO and idle game needs — tooltips, timers, inventory grids, modals, sound effects, and a DOM-diffing fetch engine that replaces HTMX without the flicker.
+Tiny, standalone JS modules for the UI patterns every MMO and idle game needs — tooltips, timers, inventory grids, modals, sound effects, and a DOM-diffing fetch engine. Everything a game UI needs, nothing it doesn't.
 
-No React. No build step. No virtual DOM. Just `<script>` tags and `data-*` attributes.
+No framework. No build step. No virtual DOM. Just `<script>` tags and `data-*` attributes.
 
 ## Modules
 
 | Module | Size | Purpose |
 |--------|------|---------|
-| **fetch.js** | ~4KB | DOM-diffing HTML swap engine. Replaces HTMX. |
+| **fetch.js** | ~4KB | DOM-diffing HTML swap engine. Polls endpoints, patches only what changed. |
 | **tooltip.js** | ~3KB | Viewport-aware tooltip positioning (anchored + cursor-follow). |
 | **timer.js** | ~3KB | Countdown timers, progress bars, resource interpolation. |
 | **sound.js** | ~2KB | Audio preloading and playback with mute toggle. |
 | **modal.js** | ~3KB | Lightbox/overlay with stacking, Escape, click-outside. |
 | **inventory.js** | ~5KB | Drag/drop grid with context menu and touch support. |
-| **thryft.js** | ~20KB | Combined bundle (all modules). |
+| **cost.js** | ~5KB | Live affordability tracking — updates costs and toggles build buttons. |
+| **thryft.js** | ~14KB | Combined bundle, minified (all modules). |
 
 Load individually or use `thryft.js` for the combined bundle. Each module attaches to `window.Thryft`.
 
@@ -36,7 +37,7 @@ Or load only what you need:
 
 ## fetch.js — DOM-Diffing Fetch Engine
 
-Replaces HTMX. Fetches HTML from endpoints and patches the DOM via diffing instead of replacing entire elements.
+Fetches server-rendered HTML and patches the DOM via diffing — only what changed gets touched. No flicker, no animation interruption.
 
 ```html
 <!-- Poll every 30s, diff changes into DOM (no flicker) -->
@@ -74,11 +75,11 @@ Thryft.fetch.swap('#target', '<p>Hi</p>')  // Manually diff-swap HTML
 Thryft.fetch.stop('#resource-bar')      // Stop polling
 ```
 
-### Why Not HTMX?
+### Why DOM Diffing?
 
-HTMX tears down and rebuilds entire DOM subtrees on every swap. When a resource counter ticks from "1,234" to "1,235", HTMX replaces the whole element — killing CSS animations, causing layout flicker, and shipping 14KB for features games don't use (WebSocket, history, forms, CSS transitions).
+Most swap libraries replace entire DOM subtrees on every update. When a resource counter ticks from "1,234" to "1,235", the whole element gets torn down and rebuilt — killing CSS animations and causing layout flicker.
 
-Thryft diffs the old and new DOM and patches only what changed. One text node update, no flash.
+Thryft walks the old and new DOM trees in parallel and patches only the nodes that actually changed. One text node update, no flash, no wasted work.
 
 ## timer.js — Countdowns, Progress Bars, Resource Ticking
 
@@ -218,6 +219,57 @@ Thryft.modal.current()     // topmost modal element
 ```
 
 Features: hover tooltips, click context menu with custom actions, drag-to-reorder (mouse + touch), action callbacks via fetch.
+
+## cost.js — Live Affordability Tracking
+
+Reads current resource values from Thryft Timer elements and updates cost displays in real time. Toggles build/craft buttons when all costs are met.
+
+```html
+<div data-cost-card>
+  <!-- Cost displays — auto-updated every 2s -->
+  <span data-cost="timber" data-cost-need="400">
+    <span data-cost-have>123</span>/400
+  </span>
+  <span data-cost="iron" data-cost-need="200">
+    <span data-cost-have>200</span>/200
+  </span>
+
+  <!-- Shown when ALL costs are met -->
+  <div data-cost-affordable style="display:none">
+    <button>Build</button>
+  </div>
+
+  <!-- Shown when any cost is NOT met -->
+  <div data-cost-unaffordable>
+    <button disabled>Cannot afford</button>
+  </div>
+</div>
+```
+
+With SVG ring progress (radial fill shows how close you are):
+
+```html
+<span data-cost="timber" data-cost-need="400">
+  <svg viewBox="0 0 36 36">
+    <circle cx="18" cy="18" r="14" fill="none" stroke="#2a2a3a" stroke-width="2.5"/>
+    <circle cx="18" cy="18" r="14" fill="none" data-cost-ring
+      stroke="#8b3a3a" stroke-width="2.5"
+      stroke-dasharray="87.96" stroke-dashoffset="87.96"
+      transform="rotate(-90 18 18)" stroke-linecap="round"/>
+  </svg>
+  <span data-cost-have>0</span>/<span data-cost-total>400</span>
+</span>
+```
+
+Ring stroke colour switches green when affordable, red when not. Dashoffset animates to show progress toward the cost.
+
+**JS API:**
+
+```js
+Thryft.cost.tick()              // Manually trigger update
+Thryft.cost.getResources()      // Get current {timber: 1234, iron: 567, ...}
+Thryft.cost.setColors('#0f0', '#f00')  // Custom met/unmet colours
+```
 
 ## Build
 
