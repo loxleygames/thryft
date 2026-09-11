@@ -15,7 +15,7 @@ const src = path.join(__dirname, 'src')
 const dist = path.join(__dirname, 'dist')
 const version = require('./package.json').version
 
-const modules = ['fetch', 'tooltip', 'timer', 'sound', 'modal', 'inventory', 'cost']
+const modules = ['tmpl', 'fetch', 'tooltip', 'timer', 'sound', 'modal', 'inventory', 'cost']
 
 // Clean and create dist/
 if (fs.existsSync(dist)) fs.rmSync(dist, { recursive: true })

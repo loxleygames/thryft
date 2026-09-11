@@ -10,6 +10,7 @@ No framework. No build step. No virtual DOM. Just `<script>` tags and `data-*` a
 
 | Module | Size | Purpose |
 |--------|------|---------|
+| **tmpl.js** | ~1KB | Data-bound HTML templates. Clone and fill `<template>` elements with one call. |
 | **fetch.js** | ~4KB | DOM-diffing HTML swap engine. Polls endpoints, patches only what changed. |
 | **tooltip.js** | ~3KB | Viewport-aware tooltip positioning (anchored + cursor-follow). |
 | **timer.js** | ~3KB | Countdown timers, progress bars, resource interpolation. |
@@ -33,6 +34,60 @@ Or load only what you need:
 <script src="/js/thryft/fetch.js"></script>
 <script src="/js/thryft/timer.js"></script>
 <script src="/js/thryft/sound.js"></script>
+```
+
+## tmpl.js — Data-Bound Templates
+
+Define reusable HTML structures as `<template>` elements with `data-bind` attributes. Stamp instances with one call — no innerHTML, no querySelector boilerplate.
+
+```html
+<template id="tmpl-user-card">
+  <div class="user-card">
+    <img data-bind="src:avatar" class="avatar" />
+    <strong data-bind="text:name"></strong>
+    <span data-bind="text:role"></span>
+  </div>
+</template>
+
+<script>
+  var card = Thryft.tmpl('tmpl-user-card', {
+    avatar: '/img/rob.png',
+    name: 'Rob',
+    role: 'Captain'
+  });
+  document.getElementById('user-list').appendChild(card);
+</script>
+```
+
+### Binding Syntax
+
+Space-separated bindings on `data-bind`:
+
+```html
+<div data-bind="text:label style.width:pct class:tier attr.title:tip"></div>
+```
+
+| Binding | Effect |
+|---------|--------|
+| `text:key` | `el.textContent = data[key]` |
+| `src:key` | `el.src = data[key]` |
+| `href:key` | `el.href = data[key]` |
+| `value:key` | `el.value = data[key]` |
+| `class:key` | `el.classList.add(data[key])` |
+| `style.X:key` | `el.style[X] = data[key]` |
+| `attr.X:key` | `el.setAttribute(X, data[key])` |
+| `html:key` | `el.innerHTML = data[key]` (use sparingly) |
+
+Null/undefined values are skipped. `data-bind` attributes are removed after processing so they don't pollute the DOM.
+
+### Why Templates?
+
+Games build a lot of dynamic UI — loot tables, fleet lists, combat reports, inventory tooltips. The typical approach is innerHTML string concatenation which is hard to read, hard to debug, and XSS-prone. `Thryft.tmpl` keeps the HTML structure in your markup where it belongs, and JS just provides the data.
+
+**JS API:**
+
+```js
+Thryft.tmpl('template-id', { key: 'value' })  // Returns DOM element
 ```
 
 ## fetch.js — DOM-Diffing Fetch Engine
