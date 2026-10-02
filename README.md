@@ -24,17 +24,31 @@ Load individually or use `thryft.js` for the combined bundle. Each module attach
 
 ## Quick Start
 
+One script tag, straight from GitHub through jsDelivr's CDN:
+
 ```html
-<script src="/js/thryft.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/loxleygames/thryft@v0.2.0/dist/thryft.min.js"></script>
 ```
 
 Or load only what you need:
 
 ```html
-<script src="/js/thryft/fetch.js"></script>
-<script src="/js/thryft/timer.js"></script>
-<script src="/js/thryft/sound.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/loxleygames/thryft@v0.2.0/dist/fetch.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/loxleygames/thryft@v0.2.0/dist/timer.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/loxleygames/thryft@v0.2.0/dist/sound.js"></script>
 ```
+
+With a bundler, install it from GitHub and import it once (it attaches to `window.Thryft`):
+
+```bash
+npm install github:loxleygames/thryft#v0.2.0
+```
+
+```js
+import 'thryft'
+```
+
+Or copy `dist/` into your site and self-host it: no build step either way.
 
 ## tmpl.js — Data-Bound Templates
 
